@@ -141,3 +141,4 @@ ENV/
 /parquet.iml
 /.idea/
 /.idea/vcs.xml
+*.pyc
