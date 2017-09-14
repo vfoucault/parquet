@@ -32,16 +32,12 @@ class Row(object):
             return 0
 
     def add_lame(self, lame):
-        # print "adding lame {}".format(lame)
         if self.check_space(lame):
             lame_id = self.get_next_lame_id()
             lame.y = self.y
             self.y = lame.end_y
             self.lames[lame_id] = lame
         self.space_left -= lame.length
-
-    def del_lame(self, lame_id):
-        del self.lames[lame_id]
 
     def __repr__(self):
         return "<Row row_id={} num_lames={}".format(self.row_id, self.num_lames)

@@ -1,7 +1,7 @@
 
 class Lame(object):
 
-    def __init__(self, length, width, color, x=None, y=None, row=None, row_item=None):
+    def __init__(self, length, width, color, y=None):
         self.length = length
         self.width = width
         self.color = color

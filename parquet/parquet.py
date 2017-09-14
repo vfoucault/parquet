@@ -33,7 +33,7 @@ class Parquet(object):
         self.dr = ImageDraw.Draw(self.im)
 
     def get_my_xs(self, row):
-        return self.lames['width'] * row.row_id, self.lames['width'] * row.row_id + self.lames['width']
+        return row.width * row.row_id, row.width * row.row_id + row.width
 
     def draw_parquet(self):
         for row_id, row in self.parquet.iteritems():
@@ -69,31 +69,37 @@ class Parquet(object):
     def has_touching_colors(self, previous_row):
         pass
 
+    def fetch_good_size(self,row):
+        good_lenghts = list(self.lames['lengths'])
+        previous_lame = row.get_last_lame()
+        previous_row = self.get_last_row()
+        if previous_lame:
+            good_lenghts.remove(previous_lame.length)
+        if previous_row:
+            # now that i have row, let's find if there is a match with this y, or end_y except if item is item0
+            # get last row next Y
+            last_row_ys = [lame.y for lame_id, lame in previous_row.lames.iteritems()]
+            good_lenghts = [l for l in good_lenghts if not (row.y + l) in last_row_ys]
+        return good_lenghts
+
+    def fetch_good_colors(self,row):
+        good_colors = list(self.colors)
+        previous_lame = row.get_last_lame()
+        if previous_lame:
+            good_colors.remove(previous_lame.color)
+        return good_colors
 
     def fill_parquet(self):
         while self.current_row <= self.max_rows:
             row = self.create_row()
-            good_lenghts = list(self.lames['lengths'])
-            good_colors = list(self.colors)
             while row.space_left > min(self.lames['lengths']):
-                this_lame_good_lengths = list(good_lenghts)
-                this_lame_good_colors = list(good_colors)
-                previous_lame = row.get_last_lame()
-                previous_row = self.get_last_row()
-                if previous_lame:
-                    this_lame_good_lengths.remove(previous_lame.length)
-                    this_lame_good_colors.remove(previous_lame.color)
-                if previous_row:
-                    # now that i have row, let's find if there is a match with this y, or end_y except if item is item0
-                    # get last row next Y
-                    last_row_ys = [lame.y for lame_id, lame in previous_row.lames.iteritems()]
-                    this_lame_good_lengths = [l for l in this_lame_good_lengths if not (row.y + l) in last_row_ys]
-                    print "row={}, lame_id={}, ok_lenghts {}".format(row.row_id, row.get_next_lame_id(), this_lame_good_lengths)
+                # this_lame_good_lengths = list(good_lenghts)
+                this_lame_good_lengths = self.fetch_good_size(row)
+                this_lame_good_colors = self.fetch_good_colors(row)
                 lame = self.get_a_lame(good_colors=this_lame_good_colors, good_lengths=this_lame_good_lengths)
                 row.add_lame(lame)
             self.add_row(row)
 
     def show(self):
         self.im.show()
-
 
